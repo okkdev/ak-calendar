@@ -6,20 +6,39 @@
     const data = await res.json()
     const handbook = data.handbookDict
 
-    console.log(handbook)
-
+    let characters = []
     for (let char in handbook) {
       if (handbook[char].charID.startsWith('char_')) {
-        console.log('-')
-        console.log(handbook[char].charID)
-        console.log(
-          parseBirthday(handbook[char].storyTextAudio[0].stories[0].storyText)
-        )
+        characters.push({
+          name: parseName(
+            handbook[char].storyTextAudio[0].stories[0].storyText
+          ),
+          birthdate: parseBirthdate(
+            handbook[char].storyTextAudio[0].stories[0].storyText
+          ),
+          image:
+            'https://aceship.github.io/AN-EN-Tags/img/characters/' +
+            handbook[char].charID +
+            '_1.png',
+          avatar:
+            'https://aceship.github.io/AN-EN-Tags/img/avatars/' +
+            handbook[char].charID +
+            '_1.png',
+        })
       }
     }
+
+    return characters
   }
 
-  function parseBirthday(desc) {
+  function parseName(desc) {
+    return desc
+      .split('[Code Name] ')
+      .pop()
+      .split('\n')[0]
+  }
+
+  function parseBirthdate(desc) {
     let rawDate = desc
       .split('[Date of Birth] ')
       .pop()
@@ -65,10 +84,12 @@
         break
     }
 
-    return ' Month: ' + month + ' Day: ' + parseInt(rawDate.match(/\d+/), 10)
+    return { month: month, day: parseInt(rawDate.match(/\d+/), 10) }
   }
 
-  createCharacterObject()
+  createCharacterObject().then(chars => {
+    console.log(chars)
+  })
 </script>
 
 <main>
